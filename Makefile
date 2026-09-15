@@ -1,38 +1,38 @@
-# Корневой Makefile модуля
+# Makefile модуля go-samples.
 
-# Список папок с пакетами, которые нужно собирать.
-# Добавляйте сюда новые пакеты по мере появления.
-PACKAGES = hello-go
+BIN_DIR := $(CURDIR)/bin
+PACKAGES := hello-go hello-rest-api
 
-.PHONY: all build clean run help $(PACKAGES)
+.PHONY: all build hello-go hello-rest-api run-% clean generate help
 
-# Цель по умолчанию — собрать все пакеты
 all: build
 
-# Собрать все пакеты
+# Собрать все бинарники в ./bin.
 build: $(PACKAGES)
 
-# Запустить make в каждой папке пакета
-$(PACKAGES):
-	@echo "==> Building $@"
-	@$(MAKE) -C $@ build
+hello-go:
+	@$(MAKE) -C hello-go build
 
-# Запустить конкретный пакет (например: make run-hello-go)
+hello-rest-api:
+	@$(MAKE) -C hello-rest-api build
+
+# Примеры: make run-hello-go, make run-hello-rest-api.
 run-%:
 	@$(MAKE) -C $* run
 
-# Очистить все пакеты
-clean:
-	@for pkg in $(PACKAGES); do \
-		echo "==> Cleaning $$pkg"; \
-		$(MAKE) -C $$pkg clean; \
-	done
+generate:
+	@$(MAKE) -C hello-rest-api generate
 
-# Показать список доступных целей
+clean:
+	@$(MAKE) -C hello-go clean
+	@$(MAKE) -C hello-rest-api clean
+
 help:
 	@echo "Доступные цели:"
-	@echo "  make build          — собрать все пакеты"
-	@echo "  make clean          — очистить все пакеты"
-	@echo "  make run-hello-go   — запустить пакет hello-go"
-	@echo "  make help           — показать эту справку"
-
+	@echo "  make build              — собрать все бинарники в ./bin"
+	@echo "  make hello-go           — собрать hello-go"
+	@echo "  make hello-rest-api     — собрать REST API"
+	@echo "  make run-hello-go       — запустить hello-go"
+	@echo "  make run-hello-rest-api — запустить REST API"
+	@echo "  make generate           — обновить ogen-код"
+	@echo "  make clean              — удалить бинарники"
