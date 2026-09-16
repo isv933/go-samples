@@ -7,7 +7,9 @@ import (
 	"time"
 )
 
-func shutdown(shutdownFunc func(context.Context), timeout time.Duration) func() {
+type shutdownOperation func(context.Context)
+
+func shutdown(shutdownFunc shutdownOperation, timeout time.Duration) func() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
