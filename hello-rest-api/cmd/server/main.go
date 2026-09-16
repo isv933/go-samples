@@ -7,24 +7,11 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
 	"time"
 
 	"github.com/isv933/go-samples/hello-rest-api/gen/api"
 )
-
-type handler struct{}
-
-func (handler) GetUserById(_ context.Context, params api.GetUserByIdParams) (*api.User, error) {
-	// Пример данных. Здесь можно подключить хранилище пользователей.
-	user := &api.User{Name: "User " + strconv.Itoa(params.ID)}
-	if params.ID == 1 {
-		user.Name = "Alice"
-		user.SetEmail(api.NewOptString("alice@example.com"))
-	}
-	return user, nil
-}
 
 func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
@@ -33,7 +20,7 @@ func main() {
 		addr = ":18080"
 	}
 
-	apiServer, err := api.NewServer(handler{})
+	apiServer, err := api.NewServer(apiHandler{})
 	if err != nil {
 		logger.Error("create API server", "error", err)
 		os.Exit(1)

@@ -1,0 +1,81 @@
+openapi: 3.0.3
+info:
+  title: Url shortener Service
+  version: 1.0.0
+
+paths:
+  /shortener/{url}:
+    get:
+      summary: Получить полный путь по короткому URL
+      operationId: getFullUrl
+      parameters:
+        - name: url
+          in: path
+          required: true
+          schema:
+            type: string
+
+      responses:
+        "200":
+          description: Успешный ответ
+          content:
+            text/plain:
+              schema:
+                type: string
+        default:
+          $ref: '#/components/responses/Error'
+
+
+    delete:
+      summary: Удалить короткий URL
+      operationId: deleteShortUrl
+      parameters:
+        - name: url
+          in: path
+          required: true
+          schema:
+            type: string
+
+      responses:
+        "200":
+          description: Успешный ответ
+        default:
+          $ref: '#/components/responses/Error'
+
+  /shortener:
+    put:
+       summary: Создать короткий URL
+       operationId: createShortUrl   
+       parameters:
+        - name: url
+          in: query
+          required: true
+          schema:
+            type: string
+
+       responses:
+        "200":
+          description: Успешный ответ
+          content:
+            text/plain:
+              schema:
+                type: string
+        default:
+          $ref: '#/components/responses/Error'
+
+components:
+  schemas:
+    Error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+  responses:
+    Error:
+      description: Ошибка сервера
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
