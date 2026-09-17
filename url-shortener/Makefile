@@ -10,6 +10,7 @@ build:
 	@mkdir -p "$(BIN_DIR)"
 	@echo "Сборка $(BINARY)..."
 	go build -o "$(BINARY)" ./cmd/server
+	@cp ./gen/settings/url-shortener.sample.json $(BIN_DIR)
 
 run: build
 	@echo "Запуск $(BINARY)..."

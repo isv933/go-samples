@@ -1,0 +1,5 @@
+{
+   "listen_address": ":18000",
+   "server_timeout": "PT5S",
+   "db_connection_string": "postgresql://test:test123@server.lan:55432/go_samples"
+}
