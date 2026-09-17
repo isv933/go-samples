@@ -18,3 +18,8 @@ func (apiHandler) GetUserById(_ context.Context, params api.GetUserByIdParams) (
 	}
 	return user, nil
 }
+
+func (apiHandler) NewError(ctx context.Context, err error) *api.ErrorStatusCode {
+
+	return &api.ErrorStatusCode{StatusCode: 500}
+}

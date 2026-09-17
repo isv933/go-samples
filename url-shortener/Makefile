@@ -16,7 +16,7 @@ run: build
 	"$(BINARY)"
 
 generate:
-	go generate ./gen/api
+	go generate ./gen/...
 
 clean:
 	@echo "Удаление $(BINARY)..."
