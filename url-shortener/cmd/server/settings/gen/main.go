@@ -23,7 +23,7 @@ func createSettings(fileName string) {
 }
 
 func main() {
-	settingsFile := flag.String("settings-file-name", "./url-shortener.json", "Имя файла настроек для генерации")
+	settingsFile := flag.String("settings-file-name", "./url-shortener.sample.json", "Имя файла настроек для генерации")
 	flag.Parse()
 	createSettings(*settingsFile)
 }
