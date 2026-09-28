@@ -11,7 +11,7 @@ import (
 func createSettings(fileName string) {
 	file, _ := os.Create(fileName)
 	defer file.Close()
-	file.Write(
+	_, err := file.Write(
 		func() []byte {
 			data, err := json.MarshalIndent(settings.NewSettings(), "", "   ")
 			if err != nil {
@@ -20,6 +20,9 @@ func createSettings(fileName string) {
 
 			return append(data, '\n')
 		}())
+	if err != nil {
+		return
+	}
 }
 
 func main() {

@@ -73,15 +73,15 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			switch elem[0] {
-			case '/': // Prefix: "/"
+			case '/': // Prefix: "/redirect/"
 
-				if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+				if l := len("/redirect/"); len(elem) >= l && elem[0:l] == "/redirect/" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
-				// Param: "url"
+				// Param: "id"
 				// Leaf parameter, slashes are prohibited
 				idx := strings.IndexByte(elem, '/')
 				if idx >= 0 {
@@ -225,15 +225,15 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 				}
 			}
 			switch elem[0] {
-			case '/': // Prefix: "/"
+			case '/': // Prefix: "/redirect/"
 
-				if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+				if l := len("/redirect/"); len(elem) >= l && elem[0:l] == "/redirect/" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
-				// Param: "url"
+				// Param: "id"
 				// Leaf parameter, slashes are prohibited
 				idx := strings.IndexByte(elem, '/')
 				if idx >= 0 {
@@ -250,16 +250,16 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						r.summary = "Удалить короткий URL"
 						r.operationID = "deleteShortUrl"
 						r.operationGroup = ""
-						r.pathPattern = "/shortener/{url}"
+						r.pathPattern = "/shortener/redirect/{id}"
 						r.args = args
 						r.count = 1
 						return r, true
 					case "GET":
 						r.name = GetFullUrlOperation
-						r.summary = "Получить полный путь по короткому URL"
+						r.summary = "Получить полный путь по короткому id"
 						r.operationID = "getFullUrl"
 						r.operationGroup = ""
-						r.pathPattern = "/shortener/{url}"
+						r.pathPattern = "/shortener/redirect/{id}"
 						r.args = args
 						r.count = 1
 						return r, true

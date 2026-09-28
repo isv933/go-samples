@@ -2,31 +2,55 @@ package main
 
 import (
 	"context"
+	"errors"
+	"log/slog"
+	"net/http"
 	"strings"
 
 	"github.com/isv933/go-samples/url-shortener/gen/api"
 )
 
-type shortenerApi struct{}
-
-func (shortenerApi) CreateShortUrl(ctx context.Context, params api.CreateShortUrlParams) (api.CreateShortUrlOK, error) {
-
-	return api.CreateShortUrlOK{Data: strings.NewReader("http://shortener/go/")}, nil
-
+type shortenerApi struct {
+	service ShortenerService
 }
 
-func (shortenerApi) DeleteShortUrl(ctx context.Context, params api.DeleteShortUrlParams) error {
+func (shortener shortenerApi) CreateShortUrl(ctx context.Context, params api.CreateShortUrlParams) (api.CreateShortUrlOK, error) {
+	slog.Info("CreateShortUrl", "params", params)
+
+	shortUrl, err := shortener.service.AddShortUrl(ctx, params.URL)
+
+	if err != nil {
+		slog.Error("CreateShortUrl", "error", err)
+		return api.CreateShortUrlOK{}, err
+	}
+
+	return api.CreateShortUrlOK{Data: strings.NewReader(shortUrl)}, nil
+}
+
+func (shortener shortenerApi) DeleteShortUrl(ctx context.Context, params api.DeleteShortUrlParams) error {
 
 	return nil
 }
 
-func (shortenerApi) GetFullUrl(ctx context.Context, params api.GetFullUrlParams) (api.GetFullUrlOK, error) {
+func (shortener shortenerApi) GetFullUrl(ctx context.Context, params api.GetFullUrlParams) (api.GetFullUrlOK, error) {
+	slog.Info("GetFullUrl", "params", params)
 
-	return api.GetFullUrlOK{Data: strings.NewReader("http://new_url")}, nil
+	fullUrl, err := shortener.service.getFullUrl(ctx, params.ID)
+	if err != nil {
+		slog.Error("GetFullUrl", "error", err)
+		return api.GetFullUrlOK{}, err
+	}
 
+	return api.GetFullUrlOK{Data: strings.NewReader(fullUrl)}, nil
 }
 
 func (shortenerApi) NewError(ctx context.Context, err error) *api.ErrorStatusCode {
 
-	return &api.ErrorStatusCode{StatusCode: 500, Response: api.Error{Message: "Bad request"}}
+	if _, ok := errors.AsType[UrlNotFoundError](err); ok {
+		return &api.ErrorStatusCode{StatusCode: http.StatusNotFound,
+			Response: api.Error{Message: "URL not found"}}
+	}
+
+	return &api.ErrorStatusCode{StatusCode: http.StatusInternalServerError,
+		Response: api.Error{Message: "Internal server error"}}
 }

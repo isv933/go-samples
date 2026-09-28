@@ -18,13 +18,13 @@ type Handler interface {
 	//
 	// Удалить короткий URL.
 	//
-	// DELETE /shortener/{url}
+	// DELETE /shortener/redirect/{id}
 	DeleteShortUrl(ctx context.Context, params DeleteShortUrlParams) error
 	// GetFullUrl implements getFullUrl operation.
 	//
-	// Получить полный путь по короткому URL.
+	// Получить полный путь по короткому id.
 	//
-	// GET /shortener/{url}
+	// GET /shortener/redirect/{id}
 	GetFullUrl(ctx context.Context, params GetFullUrlParams) (GetFullUrlOK, error)
 	// NewError creates *ErrorStatusCode from error returned by handler.
 	//

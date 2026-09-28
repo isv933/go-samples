@@ -191,14 +191,14 @@ func (s *Server) handleCreateShortUrlRequest(args [0]string, argsEscaped bool, w
 //
 // Удалить короткий URL.
 //
-// DELETE /shortener/{url}
+// DELETE /shortener/redirect/{id}
 func (s *Server) handleDeleteShortUrlRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("deleteShortUrl"),
 		semconv.HTTPRequestMethodKey.String("DELETE"),
-		semconv.HTTPRouteKey.String("/shortener/{url}"),
+		semconv.HTTPRouteKey.String("/shortener/redirect/{id}"),
 	}
 	// Add attributes from config.
 	otelAttrs = append(otelAttrs, s.cfg.Attributes...)
@@ -287,9 +287,9 @@ func (s *Server) handleDeleteShortUrlRequest(args [1]string, argsEscaped bool, w
 			RawBody:          rawBody,
 			Params: middleware.Parameters{
 				{
-					Name: "url",
+					Name: "id",
 					In:   "path",
-				}: params.URL,
+				}: params.ID,
 			},
 			Raw: r,
 		}
@@ -343,16 +343,16 @@ func (s *Server) handleDeleteShortUrlRequest(args [1]string, argsEscaped bool, w
 
 // handleGetFullUrlRequest handles getFullUrl operation.
 //
-// Получить полный путь по короткому URL.
+// Получить полный путь по короткому id.
 //
-// GET /shortener/{url}
+// GET /shortener/redirect/{id}
 func (s *Server) handleGetFullUrlRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getFullUrl"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/shortener/{url}"),
+		semconv.HTTPRouteKey.String("/shortener/redirect/{id}"),
 	}
 	// Add attributes from config.
 	otelAttrs = append(otelAttrs, s.cfg.Attributes...)
@@ -435,15 +435,15 @@ func (s *Server) handleGetFullUrlRequest(args [1]string, argsEscaped bool, w htt
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    GetFullUrlOperation,
-			OperationSummary: "Получить полный путь по короткому URL",
+			OperationSummary: "Получить полный путь по короткому id",
 			OperationID:      "getFullUrl",
 			Body:             nil,
 			RawBody:          rawBody,
 			Params: middleware.Parameters{
 				{
-					Name: "url",
+					Name: "id",
 					In:   "path",
-				}: params.URL,
+				}: params.ID,
 			},
 			Raw: r,
 		}

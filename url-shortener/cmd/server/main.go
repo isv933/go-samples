@@ -11,6 +11,7 @@ import (
 
 	"github.com/isv933/go-samples/url-shortener/cmd/server/settings"
 	"github.com/isv933/go-samples/url-shortener/gen/api"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func readConfigSettings(fileName string) settings.Settings {
@@ -19,13 +20,13 @@ func readConfigSettings(fileName string) settings.Settings {
 		panic(err)
 	}
 
-	var settings settings.Settings
+	var s settings.Settings
 
-	if err := json.Unmarshal(data, &settings); err != nil {
+	if err := json.Unmarshal(data, &s); err != nil {
 		panic(err)
 	}
 
-	return settings
+	return s
 }
 
 func readSettings(configFile string) settings.Settings {
@@ -41,27 +42,39 @@ func main() {
 	configFile := flag.String("config-file", "", "Конфигурационный файл с настройками")
 	flag.Parse()
 
-	settings := readSettings(*configFile)
+	s := readSettings(*configFile)
 
-	shortenerHandler, err := api.NewServer(shortenerApi{})
+	dbPool, err := pgxpool.New(context.Background(), s.DbConnectionString)
+	if err != nil {
+		panic(err)
+	}
+
+	defer dbPool.Close()
+	shortenerService, err := NewShortenerService(PostgresRepository{pool: dbPool}, s.RedirectUrl)
+	if err != nil {
+		logger.Error("create shortener server", "error", err)
+		os.Exit(1)
+	}
+
+	shortenerHandler, err := api.NewServer(shortenerApi{shortenerService})
 	if err != nil {
 		logger.Error("create API server", "error", err)
 		os.Exit(1)
 	}
 
-	shortenerServer := &http.Server{
-		Addr:    settings.ListenAddress,
+	httpServer := &http.Server{
+		Addr:    s.ListenAddress,
 		Handler: shortenerHandler,
 	}
 
 	defer shutdown(func(ctx context.Context) {
-		if err := shortenerServer.Shutdown(ctx); err != nil {
+		if err := httpServer.Shutdown(ctx); err != nil {
 			logger.Error("shutdown HTTP server", "error", err)
 		}
-	}, settings.ServerTimeout.TimeDuration())()
+	}, s.ServerTimeout.TimeDuration())()
 
-	logger.Info("HTTP server started", "addr", settings.ListenAddress)
-	if err := shortenerServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+	logger.Info("HTTP server started", "addr", s.ListenAddress)
+	if err := httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		logger.Error("HTTP server stopped", "error", err)
 		os.Exit(1)
 	}

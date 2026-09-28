@@ -38,13 +38,13 @@ type Invoker interface {
 	//
 	// Удалить короткий URL.
 	//
-	// DELETE /shortener/{url}
+	// DELETE /shortener/redirect/{id}
 	DeleteShortUrl(ctx context.Context, params DeleteShortUrlParams) error
 	// GetFullUrl invokes getFullUrl operation.
 	//
-	// Получить полный путь по короткому URL.
+	// Получить полный путь по короткому id.
 	//
-	// GET /shortener/{url}
+	// GET /shortener/redirect/{id}
 	GetFullUrl(ctx context.Context, params GetFullUrlParams) (GetFullUrlOK, error)
 }
 
@@ -189,7 +189,7 @@ func (c *Client) sendCreateShortUrl(ctx context.Context, params CreateShortUrlPa
 //
 // Удалить короткий URL.
 //
-// DELETE /shortener/{url}
+// DELETE /shortener/redirect/{id}
 func (c *Client) DeleteShortUrl(ctx context.Context, params DeleteShortUrlParams) error {
 	_, err := c.sendDeleteShortUrl(ctx, params)
 	return err
@@ -199,7 +199,7 @@ func (c *Client) sendDeleteShortUrl(ctx context.Context, params DeleteShortUrlPa
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("deleteShortUrl"),
 		semconv.HTTPRequestMethodKey.String("DELETE"),
-		semconv.URLTemplateKey.String("/shortener/{url}"),
+		semconv.URLTemplateKey.String("/shortener/redirect/{id}"),
 	}
 	otelAttrs = append(otelAttrs, c.cfg.Attributes...)
 
@@ -233,16 +233,16 @@ func (c *Client) sendDeleteShortUrl(ctx context.Context, params DeleteShortUrlPa
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [2]string
-	pathParts[0] = "/shortener/"
+	pathParts[0] = "/shortener/redirect/"
 	{
-		// Encode "url" parameter.
+		// Encode "id" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "url",
+			Param:   "id",
 			Style:   uri.PathStyleSimple,
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.StringToString(params.URL))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -285,9 +285,9 @@ func (c *Client) sendDeleteShortUrl(ctx context.Context, params DeleteShortUrlPa
 
 // GetFullUrl invokes getFullUrl operation.
 //
-// Получить полный путь по короткому URL.
+// Получить полный путь по короткому id.
 //
-// GET /shortener/{url}
+// GET /shortener/redirect/{id}
 func (c *Client) GetFullUrl(ctx context.Context, params GetFullUrlParams) (GetFullUrlOK, error) {
 	res, err := c.sendGetFullUrl(ctx, params)
 	return res, err
@@ -297,7 +297,7 @@ func (c *Client) sendGetFullUrl(ctx context.Context, params GetFullUrlParams) (r
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getFullUrl"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.URLTemplateKey.String("/shortener/{url}"),
+		semconv.URLTemplateKey.String("/shortener/redirect/{id}"),
 	}
 	otelAttrs = append(otelAttrs, c.cfg.Attributes...)
 
@@ -331,16 +331,16 @@ func (c *Client) sendGetFullUrl(ctx context.Context, params GetFullUrlParams) (r
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [2]string
-	pathParts[0] = "/shortener/"
+	pathParts[0] = "/shortener/redirect/"
 	{
-		// Encode "url" parameter.
+		// Encode "id" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "url",
+			Param:   "id",
 			Style:   uri.PathStyleSimple,
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.StringToString(params.URL))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}

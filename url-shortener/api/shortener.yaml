@@ -4,12 +4,12 @@ info:
   version: 1.0.0
 
 paths:
-  /shortener/{url}:
+  /shortener/redirect/{id}:
     get:
-      summary: Получить полный путь по короткому URL
+      summary: Получить полный путь по короткому id
       operationId: getFullUrl
       parameters:
-        - name: url
+        - name: id
           in: path
           required: true
           schema:
@@ -25,12 +25,11 @@ paths:
         default:
           $ref: '#/components/responses/Error'
 
-
     delete:
       summary: Удалить короткий URL
       operationId: deleteShortUrl
       parameters:
-        - name: url
+        - name: id
           in: path
           required: true
           schema:
@@ -41,6 +40,8 @@ paths:
           description: Успешный ответ
         default:
           $ref: '#/components/responses/Error'
+
+
 
   /shortener:
     put:

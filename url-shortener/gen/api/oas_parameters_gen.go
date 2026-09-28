@@ -73,22 +73,22 @@ func decodeCreateShortUrlParams(args [0]string, argsEscaped bool, r *http.Reques
 
 // DeleteShortUrlParams is parameters of deleteShortUrl operation.
 type DeleteShortUrlParams struct {
-	URL string
+	ID string
 }
 
 func unpackDeleteShortUrlParams(packed middleware.Parameters) (params DeleteShortUrlParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "url",
+			Name: "id",
 			In:   "path",
 		}
-		params.URL = packed[key].(string)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
 
 func decodeDeleteShortUrlParams(args [1]string, argsEscaped bool, r *http.Request) (params DeleteShortUrlParams, _ error) {
-	// Decode path: url.
+	// Decode path: id.
 	if err := func() error {
 		param := args[0]
 		if argsEscaped {
@@ -100,7 +100,7 @@ func decodeDeleteShortUrlParams(args [1]string, argsEscaped bool, r *http.Reques
 		}
 		if len(param) > 0 {
 			d := uri.NewPathDecoder(uri.PathDecoderConfig{
-				Param:   "url",
+				Param:   "id",
 				Value:   param,
 				Style:   uri.PathStyleSimple,
 				Explode: false,
@@ -117,7 +117,7 @@ func decodeDeleteShortUrlParams(args [1]string, argsEscaped bool, r *http.Reques
 					return err
 				}
 
-				params.URL = c
+				params.ID = c
 				return nil
 			}(); err != nil {
 				return err
@@ -128,7 +128,7 @@ func decodeDeleteShortUrlParams(args [1]string, argsEscaped bool, r *http.Reques
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "url",
+			Name: "id",
 			In:   "path",
 			Err:  err,
 		}
@@ -138,22 +138,22 @@ func decodeDeleteShortUrlParams(args [1]string, argsEscaped bool, r *http.Reques
 
 // GetFullUrlParams is parameters of getFullUrl operation.
 type GetFullUrlParams struct {
-	URL string
+	ID string
 }
 
 func unpackGetFullUrlParams(packed middleware.Parameters) (params GetFullUrlParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "url",
+			Name: "id",
 			In:   "path",
 		}
-		params.URL = packed[key].(string)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
 
 func decodeGetFullUrlParams(args [1]string, argsEscaped bool, r *http.Request) (params GetFullUrlParams, _ error) {
-	// Decode path: url.
+	// Decode path: id.
 	if err := func() error {
 		param := args[0]
 		if argsEscaped {
@@ -165,7 +165,7 @@ func decodeGetFullUrlParams(args [1]string, argsEscaped bool, r *http.Request) (
 		}
 		if len(param) > 0 {
 			d := uri.NewPathDecoder(uri.PathDecoderConfig{
-				Param:   "url",
+				Param:   "id",
 				Value:   param,
 				Style:   uri.PathStyleSimple,
 				Explode: false,
@@ -182,7 +182,7 @@ func decodeGetFullUrlParams(args [1]string, argsEscaped bool, r *http.Request) (
 					return err
 				}
 
-				params.URL = c
+				params.ID = c
 				return nil
 			}(); err != nil {
 				return err
@@ -193,7 +193,7 @@ func decodeGetFullUrlParams(args [1]string, argsEscaped bool, r *http.Request) (
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "url",
+			Name: "id",
 			In:   "path",
 			Err:  err,
 		}

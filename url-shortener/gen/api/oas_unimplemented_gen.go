@@ -26,16 +26,16 @@ func (UnimplementedHandler) CreateShortUrl(ctx context.Context, params CreateSho
 //
 // Удалить короткий URL.
 //
-// DELETE /shortener/{url}
+// DELETE /shortener/redirect/{id}
 func (UnimplementedHandler) DeleteShortUrl(ctx context.Context, params DeleteShortUrlParams) error {
 	return ht.ErrNotImplemented
 }
 
 // GetFullUrl implements getFullUrl operation.
 //
-// Получить полный путь по короткому URL.
+// Получить полный путь по короткому id.
 //
-// GET /shortener/{url}
+// GET /shortener/redirect/{id}
 func (UnimplementedHandler) GetFullUrl(ctx context.Context, params GetFullUrlParams) (r GetFullUrlOK, _ error) {
 	return r, ht.ErrNotImplemented
 }
