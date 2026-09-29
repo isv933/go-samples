@@ -11,8 +11,6 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
-var errIDAttemptsExhausted = errors.New("could not generate unique id")
-
 type shortenerDB interface {
 	Exec(context.Context, string, ...any) (pgconn.CommandTag, error)
 	QueryRow(context.Context, string, ...any) pgx.Row
@@ -37,7 +35,7 @@ func (s PostgresRepository) AddShortUrl(ctx context.Context, url string) (string
 			return uniqueId, nil
 		}
 	}
-	return "", errIDAttemptsExhausted
+	return "", UniqueIdConflictError{}
 }
 
 func (s PostgresRepository) GetFullUrl(ctx context.Context, id string) (string, error) {

@@ -6,16 +6,22 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func TestShortenerApiNotFound(t *testing.T) {
-	response := (shortenerApi{}).NewError(t.Context(), UrlNotFoundError{pgx.ErrNoRows})
-	if response.StatusCode != 404 {
-		t.Fatalf("expected HTTP 404, got %d", response.StatusCode)
+func TestShortenerAPI(t *testing.T) {
+	tests := []struct {
+		name          string
+		err           error
+		httpErrorCode int
+	}{
+		{"http not found", UrlNotFoundError{pgx.ErrNoRows}, 404},
+		{"http unavailable", DatabaseError{pgx.ErrTooManyRows}, 500},
 	}
-}
 
-func TestShortenerApiServiceUnavailable(t *testing.T) {
-	response := (shortenerApi{}).NewError(t.Context(), DatabaseError{pgx.ErrTooManyRows})
-	if response.StatusCode != 500 {
-		t.Fatalf("expected HTTP 500, got %d", response.StatusCode)
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			response := (shortenerApi{}).NewError(t.Context(), test.err)
+			if response.StatusCode != test.httpErrorCode {
+				t.Fatalf("got status code %d, want %d", response.StatusCode, test.httpErrorCode)
+			}
+		})
 	}
 }

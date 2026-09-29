@@ -8,6 +8,9 @@ type UrlNotFoundError struct {
 	error error
 }
 
+type UniqueIdConflictError struct {
+}
+
 func (e DatabaseError) Error() string {
 	return e.error.Error()
 }
@@ -22,4 +25,8 @@ func (e UrlNotFoundError) Error() string {
 
 func (e UrlNotFoundError) Unwrap() error {
 	return e.error
+}
+
+func (e UniqueIdConflictError) Error() string {
+	return "could not generate unique id"
 }

@@ -1,36 +1,48 @@
 package main
 
 import (
-	"errors"
+	"context"
 	"testing"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/pashagolub/pgxmock/v5"
+	"github.com/stretchr/testify/require"
 )
 
-func TestPostgresRepositoryConvertError(t *testing.T) {
+func TestPostgresRepository_ConvertError(t *testing.T) {
 	repository := PostgresRepository{}
 
-	notFound := repository.convertError(pgx.ErrNoRows)
-	if _, ok := errors.AsType[UrlNotFoundError](notFound); !ok {
-		t.Fatalf("expected UrlNotFoundError, got %T", notFound)
-	}
-	if !errors.Is(notFound, pgx.ErrNoRows) {
-		t.Fatalf("expected pgx.ErrNoRows in error chain, got %v", notFound)
-	}
+	require.ErrorAs(t, repository.convertError(pgx.ErrNoRows), new(UrlNotFoundError))
+	require.ErrorIs(t, repository.convertError(pgx.ErrNoRows), pgx.ErrNoRows)
 
 	pgErr := &pgconn.PgError{Code: "42P01"}
-	databaseErr := repository.convertError(pgErr)
-	if _, ok := errors.AsType[DatabaseError](databaseErr); !ok {
-		t.Fatalf("expected DatabaseError, got %T", databaseErr)
-	}
-	if !errors.Is(databaseErr, pgErr) {
-		t.Fatalf("expected PostgreSQL error in error chain, got %v", databaseErr)
-	}
+	require.ErrorIs(t, repository.convertError(pgErr), pgErr)
 }
 
-func TestPostgresRepositoryCollisionLimit(t *testing.T) {
+func TestPostgresRepository_GetFullUrl(t *testing.T) {
+	mock, err := pgxmock.NewPool(
+		pgxmock.QueryMatcherOption(pgxmock.QueryMatcherEqual),
+	)
+
+	require.NoError(t, err)
+	defer mock.Close()
+
+	const myId = "super_id"
+	const url = "http://example.com"
+	const query = "SELECT url FROM shortener_url WHERE id = $1"
+	mock.ExpectQuery(query).
+		WithArgs(myId).
+		WillReturnRows(pgxmock.NewRows([]string{"url"}).AddRow(url)).
+		Times(1)
+	repository := PostgresRepository{pool: mock}
+	full, err := repository.GetFullUrl(context.Background(), myId)
+	require.NoError(t, err)
+	require.Equal(t, url, full)
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestPostgresRepository_AddShortUrlCollisionLimit(t *testing.T) {
 	mock, err := pgxmock.NewPool(
 		pgxmock.QueryMatcherOption(pgxmock.QueryMatcherEqual),
 	)
@@ -49,13 +61,7 @@ func TestPostgresRepositoryCollisionLimit(t *testing.T) {
 
 	repository := PostgresRepository{pool: mock}
 	id, err := repository.AddShortUrl(t.Context(), url)
-	if id != "" {
-		t.Errorf("id = %q; want empty string", id)
-	}
-	if !errors.Is(err, errIDAttemptsExhausted) {
-		t.Errorf("error = %v; want errIDAttemptsExhausted", err)
-	}
-	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("mock expectations: %v", err)
-	}
+	require.Empty(t, id)
+	require.ErrorAs(t, err, &UniqueIdConflictError{})
+	require.NoError(t, mock.ExpectationsWereMet())
 }
